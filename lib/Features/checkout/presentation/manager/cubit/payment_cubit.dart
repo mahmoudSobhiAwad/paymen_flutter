@@ -11,17 +11,25 @@ class PaymentCubit extends Cubit<PaymentState> {
   PaymentCubit() : super(PaymentInitial());
   final PaymentStripeRepoImpl paymentStripeRepoImpl = PaymentStripeRepoImpl();
   int currIndex = 0;
+  bool isLoading = false;
   Future<void> createPaymentInten() async {
-    emit(PaymentLoadingState());
-    final result = await paymentStripeRepoImpl.makePayment(
-        paymentIntentModel: PaymentIntentModel(
-            amount: "2000", currenceyCode: "usd", customerId: 'cus_RZYnrgsOauRMIj'));
-    result.fold((model) {
-      emit(PaymentSuccessState());
-    }, (failure) {
-      log(failure.errorMessage);
-      emit(PaymentErrorState(errMessage: failure.errorMessage));
-    });
+    if (!isLoading) {
+      isLoading = true;
+      emit(PaymentLoadingState());
+      final result = await paymentStripeRepoImpl.makePayment(
+          paymentIntentModel: PaymentIntentModel(
+              amount: "2000",
+              currenceyCode: "usd",
+              customerId: 'cus_RZYnrgsOauRMIj'));
+      result.fold((model) {
+        isLoading = false;
+        emit(PaymentSuccessState());
+      }, (failure) {
+        isLoading = false;
+        log(failure.errorMessage);
+        emit(PaymentErrorState(errMessage: failure.errorMessage));
+      });
+    }
   }
 
   void changeIndex(index) {

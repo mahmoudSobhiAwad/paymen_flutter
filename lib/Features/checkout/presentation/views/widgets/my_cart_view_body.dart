@@ -2,7 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:payment_flutter/Features/checkout/presentation/manager/cubit/payment_cubit.dart';
 import 'package:payment_flutter/Features/checkout/presentation/views/thank_you_view.dart';
 import 'package:payment_flutter/Features/checkout/presentation/views/widgets/cart_info_item.dart';
-import 'package:payment_flutter/Features/checkout/presentation/views/widgets/payment_methods_list_view.dart';
+import 'package:payment_flutter/Features/checkout/presentation/views/widgets/custom_model_bottom_sheet.dart';
+import 'package:payment_flutter/Features/checkout/presentation/views/widgets/pay_with_paypal.dart';
 import 'package:payment_flutter/Features/checkout/presentation/views/widgets/total_price_widget.dart';
 import 'package:payment_flutter/core/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -72,6 +73,7 @@ class MyCartViewBody extends StatelessWidget {
                 height: 16,
               ),
               CustomButton(
+                isLoading: bloc.isLoading,
                 text: 'Complete Payment',
                 onTap: () {
                   showModalBottomSheet(
@@ -86,6 +88,10 @@ class MyCartViewBody extends StatelessWidget {
                               onTap: () async {
                                 if (bloc.currIndex == 0) {
                                   await bloc.createPaymentInten();
+                                } else if (bloc.currIndex == 1) {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          PaymentWithPayPal()));
                                 }
                               },
                               changeIndex: (index) {
@@ -105,46 +111,6 @@ class MyCartViewBody extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class PaymentMethodsBottomSheet extends StatelessWidget {
-  const PaymentMethodsBottomSheet(
-      {super.key,
-      required this.onTap,
-      required this.changeIndex,
-      required this.currIndex});
-  final void Function() onTap;
-  final void Function(int) changeIndex;
-
-  final int currIndex;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(
-            height: 16,
-          ),
-          PaymentMethodsListView(
-            changeActiveIndex: (int index) {
-              changeIndex(index);
-            },
-            activeIndex: currIndex,
-          ),
-          const SizedBox(
-            height: 32,
-          ),
-          CustomButton(
-            text: 'Continue',
-            onTap: onTap,
-          ),
-        ],
-      ),
     );
   }
 }
